@@ -1,9 +1,9 @@
 package main
 
 import (
-	//"fmt"
 	"math/rand"
 	"time"
+	"strconv"
 )
 
 type Game struct {
@@ -13,20 +13,21 @@ type Game struct {
 
 func main() {
 
-	//fmt.Println("Hello from main")
-
-	game := NewGame(50, 150)
+	game := newGame(45, 150)
 	time.Sleep(1000 * time.Millisecond)
+	
+	iterations := 0
 
 	for {
 		print("\033[H\033[2J")
-		game.Step()
-		print(toString(game.current))
+		iterations++
+		game.step()
+		print(boardToString(game.current, iterations))
 		time.Sleep(100 * time.Millisecond)
 	}
 }
 
-func (game *Game) Step() {
+func (game *Game) step() {
 	game.current = game.next
 	
 	for i := 1; i < (len(game.current)-1); i++ {
@@ -77,31 +78,30 @@ func (game *Game) change(x, y int) {
 	}
 }
 
-func toString(board [][]bool) string {
+func boardToString(board [][]bool, iterations int) string {
 
-	//fmt.Println("Hello from toString")
-
-	text := ""
+	text := "" 
+	
+	count := 0
 
 	for i := 0; i < len(board); i++ {
 		for j := 0; j < len(board[i]); j++ {
 			if board[i][j] == true {
 				text = text + "*"
+				count ++
 			} else {
 				text = text + " "
 			}
 		}
 		text = text + "\n"
 	}
-
-	//fmt.Println(text)
-	//fmt.Println("Goodbye from toString")
-
+	
+	text = "Conway's Game of Life - Iteration: " + strconv.Itoa(iterations) + " - Number of living cells: " + strconv.Itoa(count) + "\n" + text
 	return text
 
 }
 
-func NewGame(h, w int) Game {
+func newGame(h, w int) Game {
 
 	board := make([][]bool, h+2)
 
@@ -110,12 +110,10 @@ func NewGame(h, w int) Game {
 	}
 	
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	
 	times := r.Intn(w*6)
 		
 	for t := 0; t < times; t++ {
 		i, j := rand.Intn(h), rand.Intn(w)
-		
 		board[i][j] = true
 	}
 	
